@@ -51,6 +51,7 @@ export class SelectComponent
     @Output() selected: EventEmitter<any> = new EventEmitter<any>();
     @Output() deselected: EventEmitter<any> = new EventEmitter<any>();
     @Output() noOptionsFound: EventEmitter<null> = new EventEmitter<null>();
+    @Output() search: EventEmitter<string> = new EventEmitter<string>();
 
     @ViewChild('selection') selectionSpan: any;
     @ViewChild('dropdown') dropdown: SelectDropdownComponent;
@@ -480,6 +481,15 @@ export class SelectComponent
                 this.deselectLast();
             }
         }
+
+        let previousValue = this.filterInput.nativeElement.value;
+
+        window.setTimeout(() => {
+            let currentValue = this.filterInput.nativeElement.value;
+            if (currentValue !== previousValue) {
+                this.search.emit(currentValue);
+            }
+        });
     }
 
     private handleSingleFilterKeydown(event: any) {
