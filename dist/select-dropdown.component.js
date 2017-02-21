@@ -56,10 +56,14 @@ var SelectDropdownComponent = (function () {
     /** View. **/
     SelectDropdownComponent.prototype.getOptionStyle = function (option) {
         if (option.highlighted) {
-            return {
-                'background-color': this.highlightColor,
-                'color': this.highlightTextColor
-            };
+            var style = {};
+            if (typeof this.highlightColor !== 'undefined') {
+                style['background-color'] = this.highlightColor;
+            }
+            if (typeof this.highlightTextColor !== 'undefined') {
+                style['color'] = this.highlightTextColor;
+            }
+            return style;
         }
         else {
             return {};

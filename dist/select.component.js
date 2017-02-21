@@ -13,8 +13,6 @@ var SelectComponent = (function () {
     function SelectComponent() {
         this.allowClear = false;
         this.disabled = false;
-        this.highlightColor = '#2196f3';
-        this.highlightTextColor = '#fff';
         this.multiple = false;
         this.noFilter = 0;
         this.notFoundMsg = 'No results found';
@@ -177,12 +175,7 @@ var SelectComponent = (function () {
     Object.defineProperty(SelectComponent.prototype, "value", {
         /** Value. **/
         get: function () {
-            if (this._value.length === 0) {
-                return '';
-            }
-            else {
-                return this.multiple ? this._value : this._value[0];
-            }
+            return this.multiple ? this._value : this._value[0];
         },
         set: function (v) {
             if (typeof v === 'undefined' || v === null || v === '') {
@@ -265,7 +258,6 @@ var SelectComponent = (function () {
             this.deselected.emit(option.undecoratedCopy());
             setTimeout(function () {
                 if (_this.multiple) {
-                    // this.updateFilterWidth();
                     _this.updatePosition();
                     _this.optionList.highlight();
                     if (_this.isOpen) {
