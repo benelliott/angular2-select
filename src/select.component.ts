@@ -39,8 +39,8 @@ export class SelectComponent
 
     @Input() allowClear: boolean = false;
     @Input() disabled: boolean = false;
-    @Input() highlightColor: string = '#2196f3';
-    @Input() highlightTextColor: string = '#fff';
+    @Input() highlightColor: string;
+    @Input() highlightTextColor: string;
     @Input() multiple: boolean = false;
     @Input() noFilter: number = 0;
     @Input() notFoundMsg: string = 'No results found';
@@ -244,12 +244,7 @@ export class SelectComponent
     /** Value. **/
 
     get value(): any {
-        if (this._value.length === 0) {
-            return '';
-        }
-        else {
-            return this.multiple ? this._value : this._value[0];
-        }
+        return this.multiple ? this._value : this._value[0];
     }
 
     set value(v: any) {
@@ -334,12 +329,6 @@ export class SelectComponent
             this.optionList.select(option, this.multiple);
             this.valueChanged();
             this.selected.emit(option.undecoratedCopy());
-            // Is this not allready done when setting the value??
-            /*setTimeout(() => {
-                if (this.multiple) {
-                    this.updateFilterWidth();
-                }
-            });*/
         }
     }
 
@@ -350,7 +339,6 @@ export class SelectComponent
             this.deselected.emit(option.undecoratedCopy());
             setTimeout(() => {
                 if (this.multiple) {
-                    // this.updateFilterWidth();
                     this.updatePosition();
                     this.optionList.highlight();
                     if (this.isOpen) {

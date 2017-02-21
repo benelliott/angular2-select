@@ -1,12 +1,16 @@
 # Changelog
 
 
-
 <a name="1.0.0-beta.3"></a>
-## [1.0.0-beta.3](https://github.com/basvandenberg/angular2-select/compare/1.0.0-beta.2...1.0.0-beta.3) (2017-01-..)
+## [1.0.0-beta.3](https://github.com/basvandenberg/angular2-select/compare/1.0.0-beta.2...1.0.0-beta.3) (2017-02-11)
+
+### Breaking changes
+
+- Empty multi-select returns empty array as value instead of empty string (#104).
 
 ### Features
-- Trigger `onOptionsFound` event if no options found after filter (#73).
+
+- Trigger `noOptionsFound` event if no options found after filter (#73).
 
 ### Bug fixes
 
@@ -18,10 +22,13 @@
 - Fixed key handlers, prevent selecting multi-select option when pressing space
   key (#78).
 - Hide clear button when nothing is selected (#90).
+- Remove padding above option list if filter is disabled (#98).
 
 ### Improvements
 
 - Throw `TypeError` when trying to set a non-string or non-Array value.
+- For empty multiselect, return empty array instead of empty string (#104).
+- Don't force color/highlight styles when not directly set (#97).
 
 
 

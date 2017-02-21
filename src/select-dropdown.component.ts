@@ -107,10 +107,15 @@ export class SelectDropdownComponent
 
     getOptionStyle(option: Option): any {
         if (option.highlighted) {
-            return {
-                'background-color': this.highlightColor,
-                'color': this.highlightTextColor
-            };
+            let style: any = {};
+
+            if (typeof this.highlightColor !== 'undefined') {
+                style['background-color'] = this.highlightColor;
+            }
+            if (typeof this.highlightTextColor !== 'undefined') {
+                style['color'] = this.highlightTextColor;
+            }
+            return style;
         }
         else {
             return {};
