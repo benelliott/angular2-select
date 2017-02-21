@@ -45,6 +45,7 @@ export class SelectComponent
     @Input() noFilter: number = 0;
     @Input() notFoundMsg: string = 'No results found';
     @Input() placeholder: string = '';
+    @Input() showSelected: boolean = true;
 
     @Output() opened: EventEmitter<null> = new EventEmitter<null>();
     @Output() closed: EventEmitter<null> = new EventEmitter<null>();
@@ -177,6 +178,8 @@ export class SelectComponent
             if (toEmpty) {
                 this.noOptionsFound.emit(null);
             }
+
+            this.search.emit(this.filterInput.nativeElement.value);
         });
     }
 
@@ -285,7 +288,7 @@ export class SelectComponent
             v = this.optionList.value;
         }
 
-        this.optionList = new OptionList(this.options);
+        this.optionList = new OptionList(this.options, this.showSelected);
 
         if (!firstTime) {
             this.optionList.value = v;
@@ -481,15 +484,6 @@ export class SelectComponent
                 this.deselectLast();
             }
         }
-
-        let previousValue = this.filterInput.nativeElement.value;
-
-        window.setTimeout(() => {
-            let currentValue = this.filterInput.nativeElement.value;
-            if (currentValue !== previousValue) {
-                this.search.emit(currentValue);
-            }
-        });
     }
 
     private handleSingleFilterKeydown(event: any) {

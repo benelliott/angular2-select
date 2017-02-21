@@ -14,6 +14,7 @@ export declare class SelectComponent implements AfterViewInit, ControlValueAcces
     noFilter: number;
     notFoundMsg: string;
     placeholder: string;
+    showSelected: boolean;
     opened: EventEmitter<null>;
     closed: EventEmitter<null>;
     selected: EventEmitter<any>;

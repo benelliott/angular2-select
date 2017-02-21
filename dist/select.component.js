@@ -19,6 +19,7 @@ var SelectComponent = (function () {
         this.noFilter = 0;
         this.notFoundMsg = 'No results found';
         this.placeholder = '';
+        this.showSelected = true;
         this.opened = new core_1.EventEmitter();
         this.closed = new core_1.EventEmitter();
         this.selected = new core_1.EventEmitter();
@@ -126,6 +127,7 @@ var SelectComponent = (function () {
             if (toEmpty) {
                 _this.noOptionsFound.emit(null);
             }
+            _this.search.emit(_this.filterInput.nativeElement.value);
         });
     };
     SelectComponent.prototype.onMultipleFilterKeydown = function (event) {
@@ -213,7 +215,7 @@ var SelectComponent = (function () {
         if (!firstTime) {
             v = this.optionList.value;
         }
-        this.optionList = new option_list_1.OptionList(this.options);
+        this.optionList = new option_list_1.OptionList(this.options, this.showSelected);
         if (!firstTime) {
             this.optionList.value = v;
             this.valueChanged();
@@ -364,7 +366,6 @@ var SelectComponent = (function () {
         }
     };
     SelectComponent.prototype.handleMultipleFilterKeydown = function (event) {
-        var _this = this;
         var key = event.which;
         if (key === this.KEYS.BACKSPACE) {
             if (this.hasSelected && this.filterEnabled &&
@@ -372,13 +373,6 @@ var SelectComponent = (function () {
                 this.deselectLast();
             }
         }
-        var previousValue = this.filterInput.nativeElement.value;
-        window.setTimeout(function () {
-            var currentValue = _this.filterInput.nativeElement.value;
-            if (currentValue !== previousValue) {
-                _this.search.emit(currentValue);
-            }
-        });
     };
     SelectComponent.prototype.handleSingleFilterKeydown = function (event) {
         var key = event.which;
@@ -438,6 +432,7 @@ var SelectComponent = (function () {
         'noFilter': [{ type: core_1.Input },],
         'notFoundMsg': [{ type: core_1.Input },],
         'placeholder': [{ type: core_1.Input },],
+        'showSelected': [{ type: core_1.Input },],
         'opened': [{ type: core_1.Output },],
         'closed': [{ type: core_1.Output },],
         'selected': [{ type: core_1.Output },],

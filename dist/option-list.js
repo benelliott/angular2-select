@@ -2,7 +2,9 @@
 var option_1 = require('./option');
 var diacritics_1 = require('./diacritics');
 var OptionList = (function () {
-    function OptionList(options) {
+    function OptionList(options, showSelected) {
+        if (showSelected === void 0) { showSelected = true; }
+        this.showSelected = showSelected;
         /* Consider using these for performance improvement. */
         // private _selection: Array<Option>;
         // private _filtered: Array<Option>;
@@ -77,8 +79,10 @@ var OptionList = (function () {
     Object.defineProperty(OptionList.prototype, "filtered", {
         /** Filter. **/
         get: function () {
+            var _this = this;
             return this.options.filter(function (option) {
-                return option.shown;
+                // Filter to options that are shown and, if showSelected is false, then also are not selected
+                return option.shown && _this.showSelected || !option.selected;
             });
         },
         enumerable: true,

@@ -1,9 +1,10 @@
 import { Option } from './option';
 export declare class OptionList {
+    private showSelected;
     private _options;
     private _highlightedOption;
     private _hasShown;
-    constructor(options: Array<any>);
+    constructor(options: Array<any>, showSelected?: boolean);
     /** Options. **/
     readonly options: Array<Option>;
     getOptionsByValue(value: string): Array<Option>;

@@ -13,7 +13,7 @@ export class OptionList {
     private _highlightedOption: Option = null;
     private _hasShown: boolean;
 
-    constructor(options: Array<any>) {
+    constructor(options: Array<any>, private showSelected: boolean = true) {
 
         if (typeof options === 'undefined' || options === null) {
             options = [];
@@ -88,7 +88,8 @@ export class OptionList {
 
     get filtered(): Array<Option> {
         return this.options.filter((option) => {
-            return option.shown;
+            // Filter to options that are shown and, if showSelected is false, then also are not selected
+            return option.shown && this.showSelected || !option.selected;
         });
     }
 
