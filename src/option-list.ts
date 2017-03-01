@@ -133,8 +133,14 @@ export class OptionList {
     }
 
     highlight() {
-        let option: Option = this.hasShownSelected() ?
-            this.getFirstShownSelected() : this.getFirstShown();
+        let option: Option;
+        if (this.showSelected) {
+            option = this.hasShownSelected() ?
+                this.getFirstShownSelected() : this.getFirstShown();
+        } else {
+            option = this.getFirstShown();
+        }
+
         this.highlightOption(option);
     }
 

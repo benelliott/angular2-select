@@ -123,8 +123,14 @@ var OptionList = (function () {
         configurable: true
     });
     OptionList.prototype.highlight = function () {
-        var option = this.hasShownSelected() ?
-            this.getFirstShownSelected() : this.getFirstShown();
+        var option;
+        if (this.showSelected) {
+            option = this.hasShownSelected() ?
+                this.getFirstShownSelected() : this.getFirstShown();
+        }
+        else {
+            option = this.getFirstShown();
+        }
         this.highlightOption(option);
     };
     OptionList.prototype.highlightOption = function (option) {
