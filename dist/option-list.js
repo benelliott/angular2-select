@@ -129,7 +129,11 @@ var OptionList = (function () {
                 this.getFirstShownSelected() : this.getFirstShown();
         }
         else {
-            option = this.getFirstShown();
+            option = this.getFirstShownNotSelected();
+            // Hack: if no options shown, select the last as it is probably dynamically created:
+            if (!option && this.options.length > 0) {
+                option = this.options[this.options.length - 1];
+            }
         }
         this.highlightOption(option);
     };
@@ -193,6 +197,15 @@ var OptionList = (function () {
         for (var _i = 0, _a = this.options; _i < _a.length; _i++) {
             var option = _a[_i];
             if (option.shown) {
+                return option;
+            }
+        }
+        return null;
+    };
+    OptionList.prototype.getFirstShownNotSelected = function () {
+        for (var _i = 0, _a = this.options; _i < _a.length; _i++) {
+            var option = _a[_i];
+            if (option.show && !option.selected) {
                 return option;
             }
         }

@@ -138,7 +138,12 @@ export class OptionList {
             option = this.hasShownSelected() ?
                 this.getFirstShownSelected() : this.getFirstShown();
         } else {
-            option = this.getFirstShown();
+            option = this.getFirstShownNotSelected();
+
+            // Hack: if no options shown, select the last as it is probably dynamically created:
+            if (!option && this.options.length > 0) {
+                option = this.options[this.options.length - 1];
+            }
         }
 
         this.highlightOption(option);
@@ -212,6 +217,15 @@ export class OptionList {
     private getFirstShown(): Option {
         for (let option of this.options) {
             if (option.shown) {
+                return option;
+            }
+        }
+        return null;
+    }
+
+    private getFirstShownNotSelected(): Option {
+        for (let option of this.options) {
+            if (option.show && !option.selected) {
                 return option;
             }
         }
