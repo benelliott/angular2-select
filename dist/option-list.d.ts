@@ -33,6 +33,7 @@ export declare class OptionList {
     hasSelected(): boolean;
     hasShownSelected(): boolean;
     private getFirstShown();
+    private getFirstShownNotSelected();
     private getFirstShownSelected();
     static equalValues(v0: Array<string>, v1: Array<string>): boolean;
 }
