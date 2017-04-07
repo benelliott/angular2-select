@@ -225,7 +225,7 @@ export class OptionList {
 
     private getFirstShownNotSelected(): Option {
         for (let option of this.options) {
-            if (option.show && !option.selected) {
+            if (option.shown && !option.selected) {
                 return option;
             }
         }

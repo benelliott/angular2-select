@@ -1,6 +1,7 @@
 "use strict";
-var option_1 = require('./option');
-var diacritics_1 = require('./diacritics');
+Object.defineProperty(exports, "__esModule", { value: true });
+var option_1 = require("./option");
+var diacritics_1 = require("./diacritics");
 var OptionList = (function () {
     function OptionList(options, showSelected) {
         if (showSelected === void 0) { showSelected = true; }
@@ -14,9 +15,9 @@ var OptionList = (function () {
             options = [];
         }
         this._options = options.map(function (option) {
-            var o = new option_1.Option(option.value, option.label);
+            var o = new option_1.Option(option);
             if (option.disabled) {
-                o.disable();
+                o.disabled = true;
             }
             return o;
         });
@@ -104,10 +105,9 @@ var OptionList = (function () {
                 }
             });
         }
-        var toEmpty = this.hasShown && !anyShown;
         this.highlight();
         this._hasShown = anyShown;
-        return toEmpty;
+        return anyShown;
     };
     OptionList.prototype.resetFilter = function () {
         this.options.forEach(function (option) {
@@ -205,7 +205,7 @@ var OptionList = (function () {
     OptionList.prototype.getFirstShownNotSelected = function () {
         for (var _i = 0, _a = this.options; _i < _a.length; _i++) {
             var option = _a[_i];
-            if (option.show && !option.selected) {
+            if (option.shown && !option.selected) {
                 return option;
             }
         }

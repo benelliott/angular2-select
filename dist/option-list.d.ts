@@ -1,10 +1,11 @@
 import { Option } from './option';
+import { IOption } from './option.interface';
 export declare class OptionList {
     private showSelected;
     private _options;
     private _highlightedOption;
     private _hasShown;
-    constructor(options: Array<any>, showSelected?: boolean);
+    constructor(options: Array<IOption>, showSelected?: boolean);
     /** Options. **/
     readonly options: Array<Option>;
     getOptionsByValue(value: string): Array<Option>;
