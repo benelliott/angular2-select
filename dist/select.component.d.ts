@@ -65,7 +65,7 @@ export declare class SelectComponent implements ControlValueAccessor, OnChanges,
     onSingleFilterFocus(): void;
     onFilterInput(term: string): void;
     onSingleFilterKeydown(event: any): void;
-    onMultipleFilterInput(event: any): void;
+    onMultipleFilterInput(term: string): void;
     onMultipleFilterKeydown(event: any): void;
     onMultipleFilterFocus(): void;
     onClearSelectionClick(event: any): void;
@@ -100,7 +100,7 @@ export declare class SelectComponent implements ControlValueAccessor, OnChanges,
     private openDropdown();
     private closeDropdown(focus);
     /** Filter. **/
-    private filter(term);
+    private filter(term, callback?);
     private clearFilterInput();
     private setMultipleFilterInput(value);
     /** Keys. **/

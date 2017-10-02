@@ -123,20 +123,9 @@ var SelectComponent = (function () {
         this.handleSingleFilterKeydown(event);
     };
     // Multiple filter input.
-    SelectComponent.prototype.onMultipleFilterInput = function (event) {
+    SelectComponent.prototype.onMultipleFilterInput = function (term) {
         var _this = this;
-        if (!this.isOpen) {
-            this.openDropdown();
-        }
-        this.updateFilterWidth();
-        setTimeout(function () {
-            var term = event.target.value;
-            var hasShown = _this.optionList.filter(term);
-            if (!hasShown) {
-                _this.noOptionsFound.emit(term);
-            }
-            _this.search.emit(_this.filterInput.nativeElement.value);
-        });
+        this.filter(term, function () { return _this.search.emit(_this.filterInput.nativeElement.value); });
     };
     SelectComponent.prototype.onMultipleFilterKeydown = function (event) {
         this.handleMultipleFilterKeydown(event);
@@ -318,7 +307,7 @@ var SelectComponent = (function () {
         }
     };
     /** Filter. **/
-    SelectComponent.prototype.filter = function (term) {
+    SelectComponent.prototype.filter = function (term, callback) {
         var _this = this;
         if (this.multiple) {
             if (!this.isOpen) {
@@ -330,6 +319,9 @@ var SelectComponent = (function () {
             var hasShown = _this.optionList.filter(term);
             if (!hasShown) {
                 _this.noOptionsFound.emit(term);
+            }
+            if (callback) {
+                callback();
             }
         });
     };

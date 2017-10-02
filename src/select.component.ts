@@ -172,20 +172,8 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
 
     // Multiple filter input.
 
-    onMultipleFilterInput(event: any) {
-        if (!this.isOpen) {
-            this.openDropdown();
-        }
-        this.updateFilterWidth();
-        setTimeout(() => {
-            let term: string = event.target.value;
-            let hasShown: boolean = this.optionList.filter(term);
-            if (!hasShown) {
-                this.noOptionsFound.emit(term);
-            }
-
-            this.search.emit(this.filterInput.nativeElement.value);
-        });
+    onMultipleFilterInput(term: string) {
+        this.filter(term, () => this.search.emit(this.filterInput.nativeElement.value));
     }
 
     onMultipleFilterKeydown(event: any) {
@@ -403,7 +391,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
 
     /** Filter. **/
 
-    private filter(term: string) {
+    private filter(term: string, callback?: () => void) {
         if (this.multiple) {
             if (!this.isOpen) {
                 this.openDropdown();
@@ -414,6 +402,10 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
             let hasShown: boolean = this.optionList.filter(term);
             if (!hasShown) {
                 this.noOptionsFound.emit(term);
+            }
+
+            if (callback) {
+                callback();
             }
         });
     }
