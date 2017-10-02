@@ -5,6 +5,9 @@ export declare class OptionList {
     private _options;
     private _highlightedOption;
     private _hasShown;
+    private _hasSelected;
+    readonly hasShown: boolean;
+    readonly hasSelected: boolean;
     constructor(options: Array<IOption>, showSelected?: boolean);
     /** Options. **/
     readonly options: Array<Option>;
@@ -16,8 +19,10 @@ export declare class OptionList {
     select(option: Option, multiple: boolean): void;
     deselect(option: Option): void;
     clearSelection(): void;
+    private updateHasSelected();
     /** Filter. **/
     readonly filtered: Array<Option>;
+    readonly filteredEnabled: Array<Option>;
     filter(term: string): boolean;
     private resetFilter();
     /** Highlight. **/
@@ -30,8 +35,6 @@ export declare class OptionList {
     private getHighlightedIndexFromList(options);
     getHighlightedIndex(): number;
     /** Util. **/
-    readonly hasShown: boolean;
-    hasSelected(): boolean;
     hasShownSelected(): boolean;
     private getFirstShown();
     private getFirstShownNotSelected();

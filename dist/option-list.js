@@ -24,6 +24,20 @@ var OptionList = (function () {
         this._hasShown = this._options.length > 0;
         this.highlight();
     }
+    Object.defineProperty(OptionList.prototype, "hasShown", {
+        get: function () {
+            return this._hasShown;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptionList.prototype, "hasSelected", {
+        get: function () {
+            return this._hasSelected;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(OptionList.prototype, "options", {
         /** Options. **/
         get: function () {
@@ -40,15 +54,14 @@ var OptionList = (function () {
     Object.defineProperty(OptionList.prototype, "value", {
         /** Value. **/
         get: function () {
-            return this.selection.map(function (selectedOption) {
-                return selectedOption.value;
-            });
+            return this.selection.map(function (option) { return option.value; });
         },
         set: function (v) {
             v = typeof v === 'undefined' || v === null ? [] : v;
             this.options.forEach(function (option) {
                 option.selected = v.indexOf(option.value) > -1;
             });
+            this.updateHasSelected();
         },
         enumerable: true,
         configurable: true
@@ -56,9 +69,7 @@ var OptionList = (function () {
     Object.defineProperty(OptionList.prototype, "selection", {
         /** Selection. **/
         get: function () {
-            return this.options.filter(function (option) {
-                return option.selected;
-            });
+            return this.options.filter(function (option) { return option.selected; });
         },
         enumerable: true,
         configurable: true
@@ -68,14 +79,20 @@ var OptionList = (function () {
             this.clearSelection();
         }
         option.selected = true;
+        this.updateHasSelected();
     };
     OptionList.prototype.deselect = function (option) {
         option.selected = false;
+        this.updateHasSelected();
     };
     OptionList.prototype.clearSelection = function () {
         this.options.forEach(function (option) {
             option.selected = false;
         });
+        this._hasSelected = false;
+    };
+    OptionList.prototype.updateHasSelected = function () {
+        this._hasSelected = this.options.some(function (option) { return option.selected; });
     };
     Object.defineProperty(OptionList.prototype, "filtered", {
         /** Filter. **/
@@ -85,6 +102,13 @@ var OptionList = (function () {
                 // Filter to options that are shown and, if showSelected is false, then also are not selected
                 return option.shown && _this.showSelected || !option.selected;
             });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptionList.prototype, "filteredEnabled", {
+        get: function () {
+            return this.options.filter(function (option) { return option.shown && !option.disabled; });
         },
         enumerable: true,
         configurable: true
@@ -145,17 +169,17 @@ var OptionList = (function () {
         }
     };
     OptionList.prototype.highlightNextOption = function () {
-        var shownOptions = this.filtered;
-        var index = this.getHighlightedIndexFromList(shownOptions);
-        if (index > -1 && index < shownOptions.length - 1) {
-            this.highlightOption(shownOptions[index + 1]);
+        var shownEnabledOptions = this.filteredEnabled;
+        var index = this.getHighlightedIndexFromList(shownEnabledOptions);
+        if (index > -1 && index < shownEnabledOptions.length - 1) {
+            this.highlightOption(shownEnabledOptions[index + 1]);
         }
     };
     OptionList.prototype.highlightPreviousOption = function () {
-        var shownOptions = this.filtered;
-        var index = this.getHighlightedIndexFromList(shownOptions);
+        var shownEnabledOptions = this.filteredEnabled;
+        var index = this.getHighlightedIndexFromList(shownEnabledOptions);
         if (index > 0) {
-            this.highlightOption(shownOptions[index - 1]);
+            this.highlightOption(shownEnabledOptions[index - 1]);
         }
     };
     OptionList.prototype.clearHighlightedOption = function () {
@@ -175,19 +199,7 @@ var OptionList = (function () {
     OptionList.prototype.getHighlightedIndex = function () {
         return this.getHighlightedIndexFromList(this.filtered);
     };
-    Object.defineProperty(OptionList.prototype, "hasShown", {
-        /** Util. **/
-        get: function () {
-            return this._hasShown;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    OptionList.prototype.hasSelected = function () {
-        return this.options.some(function (option) {
-            return option.selected;
-        });
-    };
+    /** Util. **/
     OptionList.prototype.hasShownSelected = function () {
         return this.options.some(function (option) {
             return option.shown && option.selected;

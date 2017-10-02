@@ -5,16 +5,16 @@ var select_dropdown_component_css_1 = require("./select-dropdown.component.css")
 var select_dropdown_component_html_1 = require("./select-dropdown.component.html");
 var SelectDropdownComponent = (function () {
     function SelectDropdownComponent() {
-        this.close = new core_1.EventEmitter();
         this.optionClicked = new core_1.EventEmitter();
+        this.optionsListClick = new core_1.EventEmitter();
         this.singleFilterClick = new core_1.EventEmitter();
+        this.singleFilterFocus = new core_1.EventEmitter();
         this.singleFilterInput = new core_1.EventEmitter();
         this.singleFilterKeydown = new core_1.EventEmitter();
         this.disabledColor = '#fff';
         this.disabledTextColor = '9e9e9e';
     }
     /** Event handlers. **/
-    // Angular life cycle hooks.
     SelectDropdownComponent.prototype.ngOnInit = function () {
         this.optionsReset();
     };
@@ -29,8 +29,10 @@ var SelectDropdownComponent = (function () {
             this.filterInput.nativeElement.focus();
         }
     };
-    // Filter input (single select).
-    SelectDropdownComponent.prototype.onSingleFilterClick = function (event) {
+    SelectDropdownComponent.prototype.onOptionsListClick = function () {
+        this.optionsListClick.emit(null);
+    };
+    SelectDropdownComponent.prototype.onSingleFilterClick = function () {
         this.singleFilterClick.emit(null);
     };
     SelectDropdownComponent.prototype.onSingleFilterInput = function (event) {
@@ -39,7 +41,9 @@ var SelectDropdownComponent = (function () {
     SelectDropdownComponent.prototype.onSingleFilterKeydown = function (event) {
         this.singleFilterKeydown.emit(event);
     };
-    // Options list.
+    SelectDropdownComponent.prototype.onSingleFilterFocus = function () {
+        this.singleFilterFocus.emit(null);
+    };
     SelectDropdownComponent.prototype.onOptionsWheel = function (event) {
         this.handleOptionsWheel(event);
     };
@@ -68,11 +72,6 @@ var SelectDropdownComponent = (function () {
         }
         else {
             return {};
-        }
-    };
-    SelectDropdownComponent.prototype.clearFilterInput = function () {
-        if (this.filterEnabled) {
-            this.filterInput.nativeElement.value = '';
         }
     };
     SelectDropdownComponent.prototype.moveHighlightedIntoView = function () {
@@ -128,9 +127,11 @@ SelectDropdownComponent.propDecorators = {
     'top': [{ type: core_1.Input },],
     'width': [{ type: core_1.Input },],
     'placeholder': [{ type: core_1.Input },],
-    'close': [{ type: core_1.Output },],
+    'optionTemplate': [{ type: core_1.Input },],
     'optionClicked': [{ type: core_1.Output },],
+    'optionsListClick': [{ type: core_1.Output },],
     'singleFilterClick': [{ type: core_1.Output },],
+    'singleFilterFocus': [{ type: core_1.Output },],
     'singleFilterInput': [{ type: core_1.Output },],
     'singleFilterKeydown': [{ type: core_1.Output },],
     'filterInput': [{ type: core_1.ViewChild, args: ['filterInput',] },],

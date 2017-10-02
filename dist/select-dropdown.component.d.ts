@@ -1,4 +1,4 @@
-import { AfterViewInit, EventEmitter, OnChanges, OnInit } from '@angular/core';
+import { AfterViewInit, EventEmitter, OnChanges, OnInit, TemplateRef } from '@angular/core';
 import { Option } from './option';
 import { OptionList } from './option-list';
 export declare class SelectDropdownComponent implements AfterViewInit, OnChanges, OnInit {
@@ -12,9 +12,11 @@ export declare class SelectDropdownComponent implements AfterViewInit, OnChanges
     top: number;
     width: number;
     placeholder: string;
-    close: EventEmitter<boolean>;
+    optionTemplate: TemplateRef<any>;
     optionClicked: EventEmitter<Option>;
+    optionsListClick: EventEmitter<null>;
     singleFilterClick: EventEmitter<null>;
+    singleFilterFocus: EventEmitter<null>;
     singleFilterInput: EventEmitter<string>;
     singleFilterKeydown: EventEmitter<any>;
     filterInput: any;
@@ -25,9 +27,11 @@ export declare class SelectDropdownComponent implements AfterViewInit, OnChanges
     ngOnInit(): void;
     ngOnChanges(changes: any): void;
     ngAfterViewInit(): void;
-    onSingleFilterClick(event: any): void;
+    onOptionsListClick(): void;
+    onSingleFilterClick(): void;
     onSingleFilterInput(event: any): void;
     onSingleFilterKeydown(event: any): void;
+    onSingleFilterFocus(): void;
     onOptionsWheel(event: any): void;
     onOptionMouseover(option: Option): void;
     onOptionClick(option: Option): void;
@@ -35,7 +39,6 @@ export declare class SelectDropdownComponent implements AfterViewInit, OnChanges
     private optionsReset();
     /** View. **/
     getOptionStyle(option: Option): any;
-    clearFilterInput(): void;
     moveHighlightedIntoView(): void;
     private handleOptionsWheel(e);
 }

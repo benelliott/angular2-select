@@ -11,25 +11,31 @@ exports.SELECT_VALUE_ACCESSOR = {
     multi: true
 };
 var SelectComponent = (function () {
-    function SelectComponent() {
+    function SelectComponent(hostElement) {
+        this.hostElement = hostElement;
+        // Data input.
+        this.options = [];
+        // Functionality settings.
         this.allowClear = false;
         this.disabled = false;
         this.multiple = false;
         this.noFilter = 0;
+        // Text settings.
         this.notFoundMsg = 'No results found';
         this.placeholder = '';
         this.filterPlaceholder = '';
         this.label = '';
         this.showSelected = true;
+        // Output events.
         this.opened = new core_1.EventEmitter();
         this.closed = new core_1.EventEmitter();
         this.selected = new core_1.EventEmitter();
         this.deselected = new core_1.EventEmitter();
+        this.focus = new core_1.EventEmitter();
+        this.blur = new core_1.EventEmitter();
         this.noOptionsFound = new core_1.EventEmitter();
         this.search = new core_1.EventEmitter();
         this._value = [];
-        // Selection state variables.
-        this.hasSelected = false;
         // View state variables.
         this.hasFocus = false;
         this.isOpen = false;
@@ -40,6 +46,8 @@ var SelectComponent = (function () {
         this.placeholderView = '';
         this.clearClicked = false;
         this.selectContainerClicked = false;
+        this.optionListClicked = false;
+        this.optionClicked = false;
         this.onChange = function (_) { };
         this.onTouched = function () { };
         /** Keys. **/
@@ -52,34 +60,37 @@ var SelectComponent = (function () {
             UP: 38,
             DOWN: 40
         };
+        this.optionList = new option_list_1.OptionList([], this.showSelected);
     }
     /** Event handlers. **/
-    // Angular lifecycle hooks.
     SelectComponent.prototype.ngOnInit = function () {
         this.placeholderView = this.placeholder;
     };
     SelectComponent.prototype.ngOnChanges = function (changes) {
-        if (changes.hasOwnProperty('options')) {
-            this.updateOptionsList(changes['options'].isFirstChange());
-        }
-        if (changes.hasOwnProperty('noFilter')) {
-            var numOptions = this.optionList.options.length;
-            var minNumOptions = changes['noFilter'].currentValue;
-            this.filterEnabled = numOptions >= minNumOptions;
-        }
+        this.handleInputChanges(changes);
     };
-    // Window.
+    SelectComponent.prototype.ngAfterViewInit = function () {
+        this.updateState();
+    };
+    SelectComponent.prototype.onWindowBlur = function () {
+        this._blur();
+    };
     SelectComponent.prototype.onWindowClick = function () {
-        if (!this.selectContainerClicked) {
-            this.closeDropdown();
+        if (!this.selectContainerClicked &&
+            (!this.optionListClicked || (this.optionListClicked && this.optionClicked))) {
+            this.closeDropdown(this.optionClicked);
+            if (!this.optionClicked) {
+                this._blur();
+            }
         }
         this.clearClicked = false;
         this.selectContainerClicked = false;
+        this.optionListClicked = false;
+        this.optionClicked = false;
     };
     SelectComponent.prototype.onWindowResize = function () {
         this.updateWidth();
     };
-    // Select container.
     SelectComponent.prototype.onSelectContainerClick = function (event) {
         this.selectContainerClicked = true;
         if (!this.clearClicked) {
@@ -87,28 +98,26 @@ var SelectComponent = (function () {
         }
     };
     SelectComponent.prototype.onSelectContainerFocus = function () {
-        this.onTouched();
+        this._focus();
     };
     SelectComponent.prototype.onSelectContainerKeydown = function (event) {
         this.handleSelectContainerKeydown(event);
     };
-    // Dropdown container.
+    SelectComponent.prototype.onOptionsListClick = function () {
+        this.optionListClicked = true;
+    };
     SelectComponent.prototype.onDropdownOptionClicked = function (option) {
-        this.multiple ?
-            this.toggleSelectOption(option) : this.selectOption(option);
+        this.optionClicked = true;
+        this.multiple ? this.toggleSelectOption(option) : this.selectOption(option);
     };
-    SelectComponent.prototype.onDropdownClose = function (focus) {
-        this.closeDropdown(focus);
-    };
-    // Single filter input.
     SelectComponent.prototype.onSingleFilterClick = function () {
         this.selectContainerClicked = true;
     };
-    SelectComponent.prototype.onSingleFilterInput = function (term) {
-        var hasShown = this.optionList.filter(term);
-        if (!hasShown) {
-            this.noOptionsFound.emit(term);
-        }
+    SelectComponent.prototype.onSingleFilterFocus = function () {
+        this._focus();
+    };
+    SelectComponent.prototype.onFilterInput = function (term) {
+        this.filter(term);
     };
     SelectComponent.prototype.onSingleFilterKeydown = function (event) {
         this.handleSingleFilterKeydown(event);
@@ -132,13 +141,14 @@ var SelectComponent = (function () {
     SelectComponent.prototype.onMultipleFilterKeydown = function (event) {
         this.handleMultipleFilterKeydown(event);
     };
-    // Single clear select.
+    SelectComponent.prototype.onMultipleFilterFocus = function () {
+        this._focus();
+    };
     SelectComponent.prototype.onClearSelectionClick = function (event) {
         this.clearClicked = true;
         this.clearSelection();
         this.closeDropdown(true);
     };
-    // Multiple deselect option.
     SelectComponent.prototype.onDeselectOptionClick = function (option) {
         this.clearClicked = true;
         this.deselectOption(option);
@@ -149,16 +159,13 @@ var SelectComponent = (function () {
         this.openDropdown();
     };
     SelectComponent.prototype.close = function () {
-        this.closeDropdown();
+        this.closeDropdown(false);
     };
     SelectComponent.prototype.clear = function () {
         this.clearSelection();
     };
     SelectComponent.prototype.select = function (value) {
-        var _this = this;
-        this.optionList.getOptionsByValue(value).forEach(function (option) {
-            _this.selectOption(option);
-        });
+        this.writeValue(value);
     };
     /** ControlValueAccessor interface methods. **/
     SelectComponent.prototype.writeValue = function (value) {
@@ -172,6 +179,28 @@ var SelectComponent = (function () {
     };
     SelectComponent.prototype.setDisabledState = function (isDisabled) {
         this.disabled = isDisabled;
+    };
+    /** Input change handling. **/
+    SelectComponent.prototype.handleInputChanges = function (changes) {
+        var optionsChanged = changes.hasOwnProperty('options');
+        var noFilterChanged = changes.hasOwnProperty('noFilter');
+        var placeholderChanged = changes.hasOwnProperty('placeholder');
+        if (optionsChanged) {
+            this.updateOptionList(changes.options.currentValue);
+        }
+        if (optionsChanged || noFilterChanged) {
+            this.updateFilterEnabled();
+        }
+        if (placeholderChanged) {
+            this.updateState();
+        }
+    };
+    SelectComponent.prototype.updateOptionList = function (options) {
+        this.optionList = new option_list_1.OptionList(options, this.showSelected);
+        this.optionList.value = this._value;
+    };
+    SelectComponent.prototype.updateFilterEnabled = function () {
+        this.filterEnabled = this.optionList.options.length >= this.noFilter;
     };
     Object.defineProperty(SelectComponent.prototype, "value", {
         /** Value. **/
@@ -188,64 +217,25 @@ var SelectComponent = (function () {
             else if (!Array.isArray(v)) {
                 throw new TypeError('Value must be a string or an array.');
             }
-            if (!option_list_1.OptionList.equalValues(v, this._value)) {
-                this.optionList.value = v;
-                this.valueChanged();
-            }
+            this.optionList.value = v;
+            this._value = v;
+            this.updateState();
         },
         enumerable: true,
         configurable: true
     });
     SelectComponent.prototype.valueChanged = function () {
         this._value = this.optionList.value;
-        this.hasSelected = this._value.length > 0;
-        this.placeholderView = this.hasSelected ? '' : this.placeholder;
-        this.updateFilterWidth();
+        this.updateState();
         this.onChange(this.value);
     };
-    /** Initialization. **/
-    SelectComponent.prototype.updateOptionsList = function (firstTime) {
-        var v;
-        if (!firstTime) {
-            v = this.optionList.value;
-        }
-        this.optionList = new option_list_1.OptionList(this.options, this.showSelected);
-        if (!firstTime) {
-            this.optionList.value = v;
-            this.valueChanged();
-        }
-    };
-    /** Dropdown. **/
-    SelectComponent.prototype.toggleDropdown = function () {
-        if (!this.isDisabled) {
-            this.isOpen ? this.closeDropdown(true) : this.openDropdown();
-        }
-    };
-    SelectComponent.prototype.openDropdown = function () {
-        if (!this.isOpen) {
-            this.updateWidth();
-            this.updatePosition();
-            this.isOpen = true;
-            if (this.multiple && this.filterEnabled) {
-                this.filterInput.nativeElement.focus();
-            }
-            this.opened.emit(null);
-        }
-    };
-    SelectComponent.prototype.closeDropdown = function (focus) {
-        if (focus === void 0) { focus = false; }
-        if (this.isOpen) {
-            this.clearFilterInput();
-            this.isOpen = false;
-            if (focus) {
-                this.focus();
-            }
-            this.closed.emit(null);
-        }
+    SelectComponent.prototype.updateState = function () {
+        this.placeholderView = this.optionList.hasSelected ? '' : this.placeholder;
+        this.updateFilterWidth();
     };
     /** Select. **/
     SelectComponent.prototype.selectOption = function (option) {
-        if (!option.selected) {
+        if (!option.selected && !option.disabled) {
             this.optionList.select(option, this.multiple);
             this.valueChanged();
             this.selected.emit(option.wrappedOption);
@@ -277,15 +267,12 @@ var SelectComponent = (function () {
                 this.deselected.emit(selection[0].wrappedOption);
             }
             else {
-                this.deselected.emit(selection.map(function (option) {
-                    return option.wrappedOption;
-                }));
+                this.deselected.emit(selection.map(function (option) { return option.wrappedOption; }));
             }
         }
     };
     SelectComponent.prototype.toggleSelectOption = function (option) {
-        option.selected ?
-            this.deselectOption(option) : this.selectOption(option);
+        option.selected ? this.deselectOption(option) : this.selectOption(option);
     };
     SelectComponent.prototype.selectHighlightedOption = function () {
         var option = this.optionList.highlightedOption;
@@ -302,13 +289,53 @@ var SelectComponent = (function () {
             this.setMultipleFilterInput(option.label + ' ');
         }
     };
+    /** Dropdown. **/
+    SelectComponent.prototype.toggleDropdown = function () {
+        if (!this.isDisabled) {
+            this.isOpen ? this.closeDropdown(true) : this.openDropdown();
+        }
+    };
+    SelectComponent.prototype.openDropdown = function () {
+        if (!this.isOpen) {
+            this.updateWidth();
+            this.updatePosition();
+            this.isOpen = true;
+            if (this.multiple && this.filterEnabled) {
+                this.filterInput.nativeElement.focus();
+            }
+            this.opened.emit(null);
+        }
+    };
+    SelectComponent.prototype.closeDropdown = function (focus) {
+        if (this.isOpen) {
+            this.clearFilterInput();
+            this.updateFilterWidth();
+            this.isOpen = false;
+            if (focus) {
+                this._focusSelectContainer();
+            }
+            this.closed.emit(null);
+        }
+    };
     /** Filter. **/
+    SelectComponent.prototype.filter = function (term) {
+        var _this = this;
+        if (this.multiple) {
+            if (!this.isOpen) {
+                this.openDropdown();
+            }
+            this.updateFilterWidth();
+        }
+        setTimeout(function () {
+            var hasShown = _this.optionList.filter(term);
+            if (!hasShown) {
+                _this.noOptionsFound.emit(term);
+            }
+        });
+    };
     SelectComponent.prototype.clearFilterInput = function () {
         if (this.multiple && this.filterEnabled) {
             this.filterInput.nativeElement.value = '';
-        }
-        else {
-            this.dropdown.clearFilterInput();
         }
     };
     SelectComponent.prototype.setMultipleFilterInput = function (value) {
@@ -320,12 +347,12 @@ var SelectComponent = (function () {
         var _this = this;
         var key = event.which;
         if (this.isOpen) {
-            if (key === this.KEYS.ESC ||
-                (key === this.KEYS.UP && event.altKey)) {
+            if (key === this.KEYS.ESC || (key === this.KEYS.UP && event.altKey)) {
                 this.closeDropdown(true);
             }
             else if (key === this.KEYS.TAB) {
-                this.closeDropdown();
+                this.closeDropdown(event.shiftKey);
+                this._blur();
             }
             else if (key === this.KEYS.ENTER) {
                 this.selectHighlightedOption();
@@ -346,6 +373,7 @@ var SelectComponent = (function () {
             }
         }
         else {
+            // DEPRICATED --> SPACE
             if (key === this.KEYS.ENTER || key === this.KEYS.SPACE ||
                 (key === this.KEYS.DOWN && event.altKey)) {
                 /* FIREFOX HACK:
@@ -356,12 +384,15 @@ var SelectComponent = (function () {
                  */
                 setTimeout(function () { _this.openDropdown(); });
             }
+            else if (key === this.KEYS.TAB) {
+                this._blur();
+            }
         }
     };
     SelectComponent.prototype.handleMultipleFilterKeydown = function (event) {
         var key = event.which;
         if (key === this.KEYS.BACKSPACE) {
-            if (this.hasSelected && this.filterEnabled &&
+            if (this.optionList.hasSelected && this.filterEnabled &&
                 this.filterInput.nativeElement.value === '') {
                 this.deselectLast();
             }
@@ -376,26 +407,30 @@ var SelectComponent = (function () {
         }
     };
     /** View. **/
-    SelectComponent.prototype.focus = function () {
-        this.hasFocus = true;
-        if (this.multiple && this.filterEnabled) {
-            this.filterInput.nativeElement.focus();
-        }
-        else {
-            this.selectionSpan.nativeElement.focus();
+    SelectComponent.prototype._blur = function () {
+        if (this.hasFocus) {
+            this.hasFocus = false;
+            this.onTouched();
+            this.blur.emit(null);
         }
     };
-    SelectComponent.prototype.blur = function () {
-        this.hasFocus = false;
-        this.selectionSpan.nativeElement.blur();
+    SelectComponent.prototype._focus = function () {
+        if (!this.hasFocus) {
+            this.hasFocus = true;
+            this.focus.emit(null);
+        }
+    };
+    SelectComponent.prototype._focusSelectContainer = function () {
+        this.selectionSpan.nativeElement.focus();
     };
     SelectComponent.prototype.updateWidth = function () {
-        this.width = this.selectionSpan.nativeElement.offsetWidth;
+        this.width = this.selectionSpan.nativeElement.getBoundingClientRect().width;
     };
     SelectComponent.prototype.updatePosition = function () {
-        var e = this.selectionSpan.nativeElement;
-        this.left = e.offsetLeft;
-        this.top = e.offsetTop + e.offsetHeight;
+        var hostRect = this.hostElement.nativeElement.getBoundingClientRect();
+        var spanRect = this.selectionSpan.nativeElement.getBoundingClientRect();
+        this.left = spanRect.left - hostRect.left;
+        this.top = (spanRect.top - hostRect.top) + spanRect.height;
     };
     SelectComponent.prototype.updateFilterWidth = function () {
         if (typeof this.filterInput !== 'undefined') {
@@ -416,15 +451,17 @@ SelectComponent.decorators = [
             },] },
 ];
 /** @nocollapse */
-SelectComponent.ctorParameters = function () { return []; };
+SelectComponent.ctorParameters = function () { return [
+    { type: core_1.ElementRef, },
+]; };
 SelectComponent.propDecorators = {
     'options': [{ type: core_1.Input },],
     'allowClear': [{ type: core_1.Input },],
     'disabled': [{ type: core_1.Input },],
-    'highlightColor': [{ type: core_1.Input },],
-    'highlightTextColor': [{ type: core_1.Input },],
     'multiple': [{ type: core_1.Input },],
     'noFilter': [{ type: core_1.Input },],
+    'highlightColor': [{ type: core_1.Input },],
+    'highlightTextColor': [{ type: core_1.Input },],
     'notFoundMsg': [{ type: core_1.Input },],
     'placeholder': [{ type: core_1.Input },],
     'filterPlaceholder': [{ type: core_1.Input },],
@@ -434,10 +471,16 @@ SelectComponent.propDecorators = {
     'closed': [{ type: core_1.Output },],
     'selected': [{ type: core_1.Output },],
     'deselected': [{ type: core_1.Output },],
+    'focus': [{ type: core_1.Output },],
+    'blur': [{ type: core_1.Output },],
     'noOptionsFound': [{ type: core_1.Output },],
     'search': [{ type: core_1.Output },],
     'selectionSpan': [{ type: core_1.ViewChild, args: ['selection',] },],
     'dropdown': [{ type: core_1.ViewChild, args: ['dropdown',] },],
     'filterInput': [{ type: core_1.ViewChild, args: ['filterInput',] },],
+    'optionTemplate': [{ type: core_1.ContentChild, args: ['optionTemplate',] },],
+    'onWindowBlur': [{ type: core_1.HostListener, args: ['window:blur',] },],
+    'onWindowClick': [{ type: core_1.HostListener, args: ['window:click',] },],
+    'onWindowResize': [{ type: core_1.HostListener, args: ['window:resize',] },],
 };
 exports.SelectComponent = SelectComponent;
