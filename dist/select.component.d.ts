@@ -36,6 +36,7 @@ export declare class SelectComponent implements ControlValueAccessor, OnChanges,
     hasFocus: boolean;
     isOpen: boolean;
     isBelow: boolean;
+    deselectOptionEmitter: EventEmitter<Option>;
     private filterEnabled;
     private filterInputWidth;
     private isDisabled;

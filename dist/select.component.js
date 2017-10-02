@@ -41,6 +41,7 @@ var SelectComponent = (function () {
         this.hasFocus = false;
         this.isOpen = false;
         this.isBelow = true;
+        this.deselectOptionEmitter = new core_1.EventEmitter();
         this.filterEnabled = true;
         this.filterInputWidth = 1;
         this.isDisabled = false;
@@ -64,7 +65,9 @@ var SelectComponent = (function () {
     }
     /** Event handlers. **/
     SelectComponent.prototype.ngOnInit = function () {
+        var _this = this;
         this.placeholderView = this.placeholder;
+        this.deselectOptionEmitter.subscribe(function (option) { return _this.onDeselectOptionClick(option); });
     };
     SelectComponent.prototype.ngOnChanges = function (changes) {
         this.handleInputChanges(changes);

@@ -68,6 +68,9 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
     isOpen: boolean = false;
     isBelow: boolean = true;
 
+
+    deselectOptionEmitter: EventEmitter<Option> = new EventEmitter<Option>();
+
     private filterEnabled: boolean = true;
     private filterInputWidth: number = 1;
     private isDisabled: boolean = false;
@@ -94,6 +97,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
 
     ngOnInit() {
         this.placeholderView = this.placeholder;
+        this.deselectOptionEmitter.subscribe(option => this.onDeselectOptionClick(option));
     }
 
     ngOnChanges(changes: SimpleChanges) {
