@@ -58,6 +58,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
     @ViewChild('filterInput') filterInput: ElementRef;
 
     @ContentChild('optionTemplate') optionTemplate: TemplateRef<any>;
+    @ContentChild('selectionTemplate') selectionTemplate: TemplateRef<any>;
 
     private _value: Array<any> = [];
     private optionList: OptionList = new OptionList([], this.showSelected);

@@ -471,6 +471,7 @@ SelectComponent.propDecorators = {
     'dropdown': [{ type: core_1.ViewChild, args: ['dropdown',] },],
     'filterInput': [{ type: core_1.ViewChild, args: ['filterInput',] },],
     'optionTemplate': [{ type: core_1.ContentChild, args: ['optionTemplate',] },],
+    'selectionTemplate': [{ type: core_1.ContentChild, args: ['selectionTemplate',] },],
     'onWindowBlur': [{ type: core_1.HostListener, args: ['window:blur',] },],
     'onWindowClick': [{ type: core_1.HostListener, args: ['window:click',] },],
     'onWindowResize': [{ type: core_1.HostListener, args: ['window:resize',] },],

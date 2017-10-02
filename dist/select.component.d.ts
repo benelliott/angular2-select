@@ -30,6 +30,7 @@ export declare class SelectComponent implements ControlValueAccessor, OnChanges,
     dropdown: SelectDropdownComponent;
     filterInput: ElementRef;
     optionTemplate: TemplateRef<any>;
+    selectionTemplate: TemplateRef<any>;
     private _value;
     private optionList;
     hasFocus: boolean;
