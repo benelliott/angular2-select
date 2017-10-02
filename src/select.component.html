@@ -38,21 +38,20 @@
 
     <div class="multiple"
         *ngIf="multiple">
-        <div class="option"
-            *ngFor="let option of optionList.selection">
+        <ng-container *ngFor="let option of optionList.selection">
             <ng-template
                 [ngOutletContext]="{option: optionList.selection[0], onDeselectOptionClick: onDeselectOptionClick}"
                 [ngTemplateOutlet]="selectionTemplate"
             ></ng-template>
-            <ng-container *ngIf="!selectionTemplate">
+            <div class="option" *ngIf="!selectionTemplate">
                 <span class="deselect-option"
                       *ngIf="!selectionTemplate"
                       (click)=onDeselectOptionClick(option)>
                 &#x2715;
                 </span>
                 {{option.label}}
-            </ng-container>
-        </div>
+            </div>
+        </ng-container>
         <div class="placeholder"
             *ngIf="!filterEnabled && !optionList.hasSelected">
             {{placeholderView}}
