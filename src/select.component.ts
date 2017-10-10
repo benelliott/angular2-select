@@ -105,7 +105,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
     }
 
     ngAfterViewInit() {
-        this.updateState();
+        window.setTimeout(() => this.updateState());
     }
 
     @HostListener('window:blur')

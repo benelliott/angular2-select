@@ -73,7 +73,8 @@ var SelectComponent = (function () {
         this.handleInputChanges(changes);
     };
     SelectComponent.prototype.ngAfterViewInit = function () {
-        this.updateState();
+        var _this = this;
+        window.setTimeout(function () { return _this.updateState(); });
     };
     SelectComponent.prototype.onWindowBlur = function () {
         this._blur();
