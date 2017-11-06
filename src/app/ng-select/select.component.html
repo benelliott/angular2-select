@@ -40,7 +40,7 @@
         *ngIf="multiple">
         <ng-container *ngFor="let option of optionList.selection; let i = index">
             <ng-template
-                [ngOutletContext]="{option: option, deselectOptionEmitter: deselectOptionEmitter, index: i}"
+                [ngTemplateOutletContext]="{option: option, deselectOptionEmitter: deselectOptionEmitter, index: i}"
                 [ngTemplateOutlet]="selectionTemplate"
             ></ng-template>
             <div class="option" *ngIf="!selectionTemplate">
