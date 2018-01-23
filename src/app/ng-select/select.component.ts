@@ -1,4 +1,7 @@
-import {Component, HostListener, Input, OnChanges, OnInit, Output, EventEmitter, ExistingProvider, ViewChild, ViewEncapsulation, forwardRef, ElementRef, SimpleChange, SimpleChanges, ContentChild, TemplateRef} from '@angular/core';
+import {
+    Component, HostListener, Input, OnChanges, OnInit, Output, EventEmitter, ExistingProvider, ViewChild,
+    ViewEncapsulation, forwardRef, ElementRef, SimpleChange, SimpleChanges, ContentChild, TemplateRef, ChangeDetectorRef
+} from '@angular/core';
 import {NG_VALUE_ACCESSOR, ControlValueAccessor} from '@angular/forms';
 import {SelectDropdownComponent} from './select-dropdown.component';
 import {IOption} from './option.interface';
@@ -57,6 +60,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
 
     @ContentChild('optionTemplate') optionTemplate: TemplateRef<any>;
     @ContentChild('selectionTemplate') selectionTemplate: TemplateRef<any>;
+    @ContentChild('clearMultipleTemplate') clearMultipleTemplate: TemplateRef<any>;
 
     private _value: Array<any> = [];
     private optionList: OptionList = new OptionList([], this.showSelected);
@@ -88,7 +92,8 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
     private onTouched = () => {};
 
     constructor(
-        private hostElement: ElementRef
+        private hostElement: ElementRef,
+        private changeDetectorRef: ChangeDetectorRef
     ) {}
 
     /** Event handlers. **/
@@ -293,6 +298,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
         this.placeholderView = this.optionList.hasSelected ? '' : this.placeholder;
         setTimeout(() => {
             this.updateFilterWidth();
+            this.changeDetectorRef.markForCheck();
         });
     }
 

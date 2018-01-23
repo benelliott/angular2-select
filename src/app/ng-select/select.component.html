@@ -67,7 +67,10 @@
             (keydown)="onMultipleFilterKeydown($event)"
             (focus)="onMultipleFilterFocus()"/>
     </div>
-
+    <div class="clearMultiple" *ngIf="multiple && allowClear && optionList?.selection.length > 0" (click)="onClearSelectionClick()">
+        <ng-template [ngTemplateOutlet]="clearMultipleTemplate"></ng-template>
+        <div class="clearMultipleButton" *ngIf="!clearMultipleTemplate">&#x2715;</div>
+    </div>
 </div>
 <select-dropdown
     *ngIf="isOpen"
