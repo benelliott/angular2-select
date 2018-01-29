@@ -63,7 +63,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
     @ContentChild('clearMultipleTemplate') clearMultipleTemplate: TemplateRef<any>;
 
     private _value: Array<any> = [];
-    private optionList: OptionList = new OptionList([], this.showSelected);
+    public optionList: OptionList = new OptionList([], this.showSelected);
 
     // View state variables.
     hasFocus: boolean = false;
